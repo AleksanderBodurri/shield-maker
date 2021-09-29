@@ -1,10 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {  Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatIconRegistry } from '@angular/material/icon';
-import { MatSelectChange } from '@angular/material/select';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { debounceTime, map, startWith } from 'rxjs/operators';
 import { ShieldService } from './shield.service';
 
@@ -21,6 +19,10 @@ export class AppComponent implements OnInit {
 
   Math = Math;
 
+  mode: 'material' | 'custom' = 'material';
+
+  customSvgFile: File | null = null;
+
   constructor(
     private _iconRegistry: MatIconRegistry,
     private domSanitizer: DomSanitizer,
@@ -29,6 +31,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.lookUpIcon.pipe(debounceTime(250)).subscribe((iconLabel) => {
+      this.customSvgFile = null;
+      this.shieldService.svgAsString.next('');
+      
       this._lookUpIcon(iconLabel)
     });
 
@@ -48,6 +53,10 @@ export class AppComponent implements OnInit {
       this.lookUpIcon.next(change);
     });
 
+    this.shieldService.svgAsString.subscribe((svgString) => {
+      this.mode = svgString === '' ? 'material' : 'custom';
+    });
+
     this.lookUpIcon.next(this.shieldService.icon.value);
   }
 
@@ -65,8 +74,24 @@ export class AppComponent implements OnInit {
     return `https://fonts.gstatic.com/s/i/${this.shieldService.namespace()}`
   }
 
+  onUpload(event: Event): void {
+    const files = (event.target as any).files;
+    const file = files[0];
+
+    const reader = new FileReader();
+    reader.onload = ((e: any) => { 
+      const encodedSVG =  e.target.result.split('data:image/svg+xml;base64,')[1];
+      const svg = atob(encodedSVG);
+
+      this.shieldService.svgAsString.next(svg);
+    });
+
+    reader.readAsDataURL(file);
+  }
+
   private _lookUpIcon(iconLabel: string): void {
-    fetch(`https://fonts.gstatic.com/s/i/${this.shieldService.style.value}/${iconLabel}/v${this.shieldService.version.value}/${this.shieldService.size.value}px.svg`).then((res) => {
+    fetch(`https://fonts.gstatic.com/s/i/${this.shieldService.style.value}/${iconLabel}/v${this.shieldService.version.value}/${this.shieldService.size.value}px.svg`)
+    .then((res) => {
       if (!res.ok) {
         return;
       }

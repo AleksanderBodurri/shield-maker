@@ -2,106 +2,77 @@
   Shield Maker
 </header>
 <section>
+  <div class="colors">
+    <label>
+      <input type="color" (input)="shieldService.primary.next($any($event).target.value)" [value]="shieldService.primary | async">
+      Primary
+    </label>
+
+    <label>
+      <input type="color" (input)="shieldService.iconColor.next($any($event).target.value)" [value]="shieldService.iconColor | async">
+      Icon
+    </label>
+    
+    <label>
+      <input type="color" (input)="shieldService.secondary.next($any($event).target.value)" [value]="shieldService.secondary | async">
+      Secondary
+    </label>
+  </div>
   <div class="canvas">
     <app-canvas *ngIf="loaded"></app-canvas>
   </div>
   <div class="palette">
-    
-    <div class="coordinates">
-      <div class="y-coord">
-        <mat-slider
-        color="primary"
-        thumbLabel
-        tickInterval="1000"
-        step="1"
-        min="0"
-        max="150"
-        (input)="$event.value !== null && shieldService.iconY.next(150 - $event.value)"
-        aria-label="y-coordinate"
-        vertical
-        [value]="Math.abs(150 - shieldService.iconY.value)"
-        ></mat-slider>
-      </div>
-      <div class="x-coord">
-        <mat-slider
-        color="primary"
-        thumbLabel
-        tickInterval="1000"
-        step="1"
-        min="0"
-        max="150"
-        (input)="$event.value !== null && shieldService.iconX.next($event.value)"
-        aria-label="x-coordinate"
-        [value]="shieldService.iconX.value"
-        ></mat-slider>
-      </div>
-    </div>
-    
-    <div class="colors">
-      <label>
-        Primary
-        <input type="color" (input)="shieldService.primary.next($any($event).target.value)" [value]="shieldService.primary | async">
-      </label>
+    <label class="custom-icon">
+      Custom Icon
+      <br>
+      <input type="file" accept="image/svg+xml" (input)="onUpload($event)" [(ngModel)]="customSvgFile">
+    </label>
 
-      <label>
-        Icon
-        <input type="color" (input)="shieldService.iconColor.next($any($event).target.value)" [value]="shieldService.iconColor | async">
-      </label>
-      
-      <label>
-        Secondary
-        <input type="color" (input)="shieldService.secondary.next($any($event).target.value)" [value]="shieldService.secondary | async">
-      </label>
-    </div>
-    
-    <div class="family-options">
-      <mat-form-field appearance="fill">
-        <mat-label>Style</mat-label>
-        <mat-select (selectionChange)="shieldService.style.next($event.value)" [value]="shieldService.style | async">
-          <mat-option value="materialicons">Material Icons</mat-option>
-          <mat-option value="materialiconsoutlined">Material Icons Outlined</mat-option>
-          <mat-option value="materialiconsround">Material Icons Round</mat-option>
-          <mat-option value="materialiconssharp">Material Icons Sharp</mat-option>
-          <mat-option value="materialiconstwotone">Material Icons Two Tone</mat-option>
-        </mat-select>
-      </mat-form-field>
-      
-      <mat-form-field appearance="fill">
-        <mat-label>Version</mat-label>
-        <mat-select (selectionChange)="shieldService.version.next($event.value)" [value]="shieldService.version | async">
-          <mat-option value="4">4</mat-option>
-          <mat-option value="5">5</mat-option>
-          <mat-option value="6">6</mat-option>
-          <mat-option value="7">7</mat-option>
-          <mat-option value="8">8</mat-option>
-          <mat-option value="9">9</mat-option>
-          <mat-option value="10">10</mat-option>
-          <mat-option value="11">11</mat-option>
-          <mat-option value="12">12</mat-option>
-          <mat-option value="13">13</mat-option>
-          <mat-option value="14">14</mat-option>
-          <mat-option value="15">15</mat-option>
-          <mat-option value="16">16</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <form class="example-form">
-      <mat-form-field appearance="fill">
-        <mat-label>Icon</mat-label>
-        <input type="text"
-               placeholder="Pick one"
-               matInput
-               [formControl]="myControl"
-               [matAutocomplete]="auto"
-               [value]="shieldService.icon | async"
-               >
-        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
-          <mat-option *ngFor="let option of filteredOptions" [value]="option">
-            {{option}}
-          </mat-option>
-        </mat-autocomplete>
-      </mat-form-field>
-    </form>
+    <mat-form-field appearance="fill">
+      <mat-label>Style</mat-label>
+      <mat-select (selectionChange)="shieldService.style.next($event.value)" [value]="shieldService.style | async">
+        <mat-option value="materialicons">Material Icons</mat-option>
+        <mat-option value="materialiconsoutlined">Material Icons Outlined</mat-option>
+        <mat-option value="materialiconsround">Material Icons Round</mat-option>
+        <mat-option value="materialiconssharp">Material Icons Sharp</mat-option>
+        <mat-option value="materialiconstwotone">Material Icons Two Tone</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Icon</mat-label>
+      <input type="text"
+             placeholder="Pick one"
+             matInput
+             [formControl]="myControl"
+             [matAutocomplete]="auto"
+             [value]="shieldService.icon | async"
+             >
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let option of filteredOptions" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Version</mat-label>
+      <mat-select (selectionChange)="shieldService.version.next($event.value)" [value]="shieldService.version | async">
+        <mat-option value="4">4</mat-option>
+        <mat-option value="5">5</mat-option>
+        <mat-option value="6">6</mat-option>
+        <mat-option value="7">7</mat-option>
+        <mat-option value="8">8</mat-option>
+        <mat-option value="9">9</mat-option>
+        <mat-option value="10">10</mat-option>
+        <mat-option value="11">11</mat-option>
+        <mat-option value="12">12</mat-option>
+        <mat-option value="13">13</mat-option>
+        <mat-option value="14">14</mat-option>
+        <mat-option value="15">15</mat-option>
+        <mat-option value="16">16</mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <div class="icon-size">
       <label>
@@ -118,6 +89,36 @@
       aria-label="icon size"
       [value]="shieldService.iconSize.value"
       ></mat-slider>
+
+      <div class="coordinates">
+        <div class="y-coord">
+          <mat-slider
+          color="primary"
+          thumbLabel
+          tickInterval="1000"
+          step="1"
+          min="0"
+          max="150"
+          (input)="$event.value !== null && shieldService.iconY.next(150 - $event.value)"
+          aria-label="y-coordinate"
+          vertical
+          [value]="Math.abs(150 - shieldService.iconY.value)"
+          ></mat-slider>
+        </div>
+        <div class="x-coord">
+          <mat-slider
+          color="primary"
+          thumbLabel
+          tickInterval="1000"
+          step="1"
+          min="0"
+          max="150"
+          (input)="$event.value !== null && shieldService.iconX.next($event.value)"
+          aria-label="x-coordinate"
+          [value]="shieldService.iconX.value"
+          ></mat-slider>
+        </div>
+      </div>
 
 
     </div>

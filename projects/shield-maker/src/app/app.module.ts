@@ -17,7 +17,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { AngularFireAnalyticsModule } from '@angular/fire/compat/analytics';
 import { AngularFireModule } from '@angular/fire/compat';
 import { environment } from '../environments/environment';
-
+import { TextFieldModule } from '@angular/cdk/text-field';
 @NgModule({
   declarations: [
     AppComponent,
@@ -37,6 +37,7 @@ import { environment } from '../environments/environment';
     MatInputModule,
     MatSliderModule,
     MatToolbarModule,
+    TextFieldModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAnalyticsModule
   ],

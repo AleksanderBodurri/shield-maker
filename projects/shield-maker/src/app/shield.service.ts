@@ -18,6 +18,8 @@ export class ShieldService {
   iconY = new BehaviorSubject(55);
   iconSize = new BehaviorSubject(150);
 
+  svgAsString = new BehaviorSubject('');
+
   namespace(): string {
     return `${this.style.value}/${this.icon.value}/v${this.version.value}/${this.size.value}px.svg`
   }

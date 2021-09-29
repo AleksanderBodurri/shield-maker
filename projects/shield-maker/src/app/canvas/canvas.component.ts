@@ -1,5 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ShieldService } from '../shield.service';
 
 @Component({
@@ -8,28 +10,34 @@ import { ShieldService } from '../shield.service';
     <svg #exportSvg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px"
       y="0px" viewBox="0 0 250 250" style="enable-background:new 0 0 250 250;" xml:space="preserve">
       <style type="text/css">
-        .st0 {
-          fill: {{ shieldService.primary | async }};
+        .shield-maker-primary {
+          fill: {{ shieldService.primary | async }} !important;
         }
 
-        .st1 {
-          fill: {{ shieldService.secondary | async }};
+        .shield-maker-secondary {
+          fill: {{ shieldService.secondary | async }} !important;
         }
 
-        mat-icon path, mat-icon circle, mat-icon rect, mat-icon polygon {
-          fill: {{ shieldService.iconColor | async }};
+        foreignObject path, foreignObject circle, foreignObject rect, foreignObject polygon {
+          fill: {{ shieldService.iconColor | async }} !important;
         }
 
-        mat-icon path[fill="none"], mat-icon circle[fill="none"], mat-icon rect[fill="none"], mat-icon polygon[fill="none"] {
-          fill: none;
+        foreignObject path[fill="none"], foreignObject circle[fill="none"], foreignObject rect[fill="none"], foreignObject polygon[fill="none"] {
+          fill: none !important;
         }
       </style>
       <g>
-        <polygon class="st0" points="125,30 125,30 125,30 31.9,63.2 46.1,186.3 125,230 125,230 125,230 203.9,186.3 218.1,63.2  " />
-        <polygon class="st1" points="125,30 125,52.2 125,52.1 125,153.4 125,153.4 125,230 125,230 203.9,186.3 218.1,63.2 125,30  " />
-        <foreignObject [attr.x]="shieldService.iconX | async" [attr.y]="shieldService.iconY | async" [attr.width]="shieldService.iconSize | async" [attr.height]="shieldService.iconSize | async">
-          <mat-icon [style.width.px]="shieldService.iconSize | async" [style.height.px]="shieldService.iconSize | async" [svgIcon]="namespace + ':' + (shieldService.icon | async)"></mat-icon>
-        </foreignObject>
+        <polygon class="shield-maker-primary" points="125,30 125,30 125,30 31.9,63.2 46.1,186.3 125,230 125,230 125,230 203.9,186.3 218.1,63.2  " />
+        <polygon class="shield-maker-secondary" points="125,30 125,52.2 125,52.1 125,153.4 125,153.4 125,230 125,230 203.9,186.3 218.1,63.2 125,30  " />
+        <ng-container *ngIf="customSvgIcon !== null; else materialIcon">
+          <foreignObject [innerHtml]="customSvgIcon" [attr.x]="shieldService.iconX | async" [attr.y]="shieldService.iconY | async" [attr.width]="shieldService.iconSize | async" [attr.height]="shieldService.iconSize | async">
+          </foreignObject>
+        </ng-container>
+        <ng-template #materialIcon>
+          <foreignObject [attr.x]="shieldService.iconX | async" [attr.y]="shieldService.iconY | async" [attr.width]="shieldService.iconSize | async" [attr.height]="shieldService.iconSize | async">
+            <mat-icon [style.width.px]="shieldService.iconSize | async" [style.height.px]="shieldService.iconSize | async" [svgIcon]="namespace + ':' + (shieldService.icon | async)"></mat-icon>
+          </foreignObject>
+        </ng-template>
       </g>
     </svg>
     <div class="menu-buttons">
@@ -98,10 +106,21 @@ export class CanvasComponent implements OnInit {
 
   namespace: string = '';
 
-  constructor(public shieldService: ShieldService) {}
+  customSvgIcon: SafeHtml | null = null;
+
+  constructor(public shieldService: ShieldService, private domSanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.shieldService.icon.subscribe(() => this.namespace = this.shieldService.namespace());
+
+    this.shieldService.svgAsString.subscribe(svgString => {
+      if (svgString === '') {
+        this.customSvgIcon = null;
+        return;
+      }
+
+      this.customSvgIcon = this.domSanitizer.bypassSecurityTrustHtml(svgString);
+    });
   }
 
   export() {
