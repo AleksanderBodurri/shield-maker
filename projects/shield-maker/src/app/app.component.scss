@@ -1,0 +1,63 @@
+.canvas {
+  min-height: 510px;
+
+  app-canvas {
+    display: block;
+    width: 500px;
+    margin: auto;
+  }
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  label {
+    margin: 1rem 0;
+  }
+
+  .family-options {
+    display: flex;
+    justify-content: space-evenly;
+    width: 75%;
+    margin-top: 1rem;
+
+    mat-form-field {
+      width: 25%;
+    }
+  }
+
+  .colors {
+    display: flex;
+    width: 50%;
+    justify-content: space-around;
+  }
+}
+
+.hidden {
+  visibility: none;
+}
+
+form {
+  width: 100%;
+  text-align: center;
+
+  mat-form-field {
+    width: 55%;
+  }
+}
+
+.y-coord {
+  position: relative;
+  top: 32px;
+  left: -25px;
+}
+
+header {
+  text-align: center;
+  padding-top: 2rem;
+  font-size: 2.5rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
