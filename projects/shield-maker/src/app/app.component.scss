@@ -14,11 +14,13 @@ section {
   .colors {
     display: flex;
     flex-direction: column;
-    align-items: end;
+    align-items: flex-end;
     justify-content: center;
     width: 100%;
-    position: relative;
-    bottom: 60px;
+
+    .color-input {
+      min-width: 205px;
+    }
 
     label {
       margin: 1rem 0;

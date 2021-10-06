@@ -1,5 +1,6 @@
 import {  Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { MatAutocompleteActivatedEvent } from '@angular/material/autocomplete';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
@@ -33,7 +34,7 @@ export class AppComponent implements OnInit {
     this.lookUpIcon.pipe(debounceTime(250)).subscribe((iconLabel) => {
       this.customSvgFile = null;
       this.shieldService.svgAsString.next('');
-      
+
       this._lookUpIcon(iconLabel)
     });
 
@@ -44,13 +45,15 @@ export class AppComponent implements OnInit {
 
     this.myControl.valueChanges.pipe(
       startWith(''),
+      debounceTime(200),
       map(value => this._filter(value))
     ).subscribe((res) => {
       this.filteredOptions = res;
     });
 
-    this.myControl.valueChanges.subscribe((change) => {
-      this.lookUpIcon.next(change);
+    this.myControl.valueChanges.subscribe((option) => {
+      this.shieldService.version.next(this.shieldService.iconNameToVersion[option]?.toString?.())
+      this.lookUpIcon.next(option);
     });
 
     this.shieldService.svgAsString.subscribe((svgString) => {
@@ -60,14 +63,16 @@ export class AppComponent implements OnInit {
     this.lookUpIcon.next(this.shieldService.icon.value);
   }
 
-  private _filter(value: string): string[] {
-    if (value === '') {
-      return []
-    }
+  onAutoCompleteOptionActivation(event: MatAutocompleteActivatedEvent): void {
+    const option = event.option?.value;
+    this.shieldService.version.next(this.shieldService.iconNameToVersion[option]?.toString?.())
+    this.lookUpIcon.next(option);
+  }
 
+  private _filter(value: string) {
     const filterValue = value.toLowerCase();
 
-    return this.shieldService.commonMaterialIcons.filter(option => option.toLowerCase().includes(filterValue));
+    return this.shieldService.materialIconNames.filter(option => option.toLowerCase().startsWith(filterValue));
   }
 
   getMaterialUrl(): string {
@@ -89,10 +94,18 @@ export class AppComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  doesNotExist = new Set<string>();
+
   private _lookUpIcon(iconLabel: string): void {
-    fetch(`https://fonts.gstatic.com/s/i/${this.shieldService.style.value}/${iconLabel}/v${this.shieldService.version.value}/${this.shieldService.size.value}px.svg`)
-    .then((res) => {
+    const url = `https://fonts.gstatic.com/s/i/${this.shieldService.style.value}/${iconLabel}/v${this.shieldService.version.value}/${this.shieldService.size.value}px.svg`;
+
+    if (this.doesNotExist.has(url)) {
+      return;
+    }
+
+    fetch(url).then((res) => {
       if (!res.ok) {
+        this.doesNotExist.add(url)
         return;
       }
 
@@ -104,7 +117,20 @@ export class AppComponent implements OnInit {
         this.domSanitizer.bypassSecurityTrustResourceUrl(this.getMaterialUrl())
       );
 
+      this.shieldService.iconRotation.next(this.shieldService.iconRotation.value);
+      
       this.loaded = true;
-    })
+    });
+  }
+
+  randomInputs(): void {
+    this.shieldService.primary.next(this.generateRandomColor());
+    this.shieldService.iconColor.next(this.generateRandomColor());
+    this.shieldService.secondary.next(this.generateRandomColor());
+  }
+
+  generateRandomColor(): string {
+    // https://css-tricks.com/snippets/javascript/random-hex-color/
+    return '#' + Math.floor(Math.random()*16777215).toString(16);
   }
 }

@@ -3,20 +3,38 @@
 </header>
 <section>
   <div class="colors">
-    <label>
-      <input type="color" (input)="shieldService.primary.next($any($event).target.value)" [value]="shieldService.primary | async">
-      Primary
-    </label>
+    <div class="color-input">
+      <button mat-icon-button (click)="shieldService.primary.next(generateRandomColor())"> <mat-icon>casino</mat-icon> </button>
+      <label>
+        <input type="color" (input)="shieldService.primary.next($any($event).target.value)"
+          [value]="shieldService.primary | async">
+        Primary
+      </label>
+    </div>
 
-    <label>
-      <input type="color" (input)="shieldService.iconColor.next($any($event).target.value)" [value]="shieldService.iconColor | async">
-      Icon
-    </label>
-    
-    <label>
-      <input type="color" (input)="shieldService.secondary.next($any($event).target.value)" [value]="shieldService.secondary | async">
-      Secondary
-    </label>
+    <div class="color-input">
+      <button mat-icon-button (click)="shieldService.iconColor.next(generateRandomColor())"> <mat-icon>casino</mat-icon> </button>
+      <label>
+        <input type="color" (input)="shieldService.iconColor.next($any($event).target.value)"
+          [value]="shieldService.iconColor | async">
+        Icon
+      </label>
+    </div>
+
+    <div class="color-input">
+      <button mat-icon-button (click)="shieldService.secondary.next(generateRandomColor())"> <mat-icon>casino</mat-icon> </button>
+      <label>
+        <input type="color" (input)="shieldService.secondary.next($any($event).target.value)"
+          [value]="shieldService.secondary | async">
+        Secondary
+      </label>
+    </div>
+
+    <div class="color-input">
+      <button mat-icon-button (click)="randomInputs()"> <mat-icon>casino</mat-icon> </button>
+    </div>
+
+
   </div>
   <div class="canvas">
     <app-canvas *ngIf="loaded"></app-canvas>
@@ -41,14 +59,10 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Icon</mat-label>
-      <input type="text"
-             placeholder="Pick one"
-             matInput
-             [formControl]="myControl"
-             [matAutocomplete]="auto"
-             [value]="shieldService.icon | async"
-             >
-      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+      <input type="text" placeholder="Pick one" matInput [formControl]="myControl" [matAutocomplete]="auto"
+        [value]="shieldService.icon | async">
+      <mat-autocomplete (optionActivated)="onAutoCompleteOptionActivation($event)"
+        #auto="matAutocomplete">
         <mat-option *ngFor="let option of filteredOptions" [value]="option">
           {{option}}
         </mat-option>
@@ -58,6 +72,9 @@
     <mat-form-field appearance="fill">
       <mat-label>Version</mat-label>
       <mat-select (selectionChange)="shieldService.version.next($event.value)" [value]="shieldService.version | async">
+        <mat-option value="1">1</mat-option>
+        <mat-option value="2">2</mat-option>
+        <mat-option value="3">3</mat-option>
         <mat-option value="4">4</mat-option>
         <mat-option value="5">5</mat-option>
         <mat-option value="6">6</mat-option>
@@ -71,6 +88,12 @@
         <mat-option value="14">14</mat-option>
         <mat-option value="15">15</mat-option>
         <mat-option value="16">16</mat-option>
+        <mat-option value="17">17</mat-option>
+        <mat-option value="18">18</mat-option>
+        <mat-option value="19">19</mat-option>
+        <mat-option value="20">20</mat-option>
+        <mat-option value="21">21</mat-option>
+        <mat-option value="22">22</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -78,45 +101,30 @@
       <label>
         Icon Size
       </label>
-      <mat-slider
-      color="primary"
-      thumbLabel
-      tickInterval="1000"
-      step="1"
-      min="0"
-      max="150"
-      (input)="$event.value !== null && shieldService.iconSize.next($event.value)"
-      aria-label="icon size"
-      [value]="shieldService.iconSize.value"
-      ></mat-slider>
+      <mat-slider color="primary" thumbLabel tickInterval="1" step="1" min="0" max="150"
+        (input)="$event.value !== null && shieldService.iconSize.next($event.value)" aria-label="icon size"
+        [value]="shieldService.iconSize.value"></mat-slider>
+
+      <br>
+
+      <label>
+        Rotation
+      </label>
+      <mat-slider color="primary" thumbLabel tickInterval="1" step="1" min="0" max="360"
+        (input)="$event.value !== null && shieldService.iconRotation.next($event.value)" aria-label="icon size"
+        [value]="shieldService.iconRotation.value"></mat-slider>
+
 
       <div class="coordinates">
         <div class="y-coord">
-          <mat-slider
-          color="primary"
-          thumbLabel
-          tickInterval="1000"
-          step="1"
-          min="0"
-          max="150"
-          (input)="$event.value !== null && shieldService.iconY.next(150 - $event.value)"
-          aria-label="y-coordinate"
-          vertical
-          [value]="Math.abs(150 - shieldService.iconY.value)"
-          ></mat-slider>
+          <mat-slider color="primary" thumbLabel tickInterval="1" step="1" min="0" max="150"
+            (input)="$event.value !== null && shieldService.iconY.next(150 - $event.value)" aria-label="y-coordinate"
+            vertical [value]="Math.abs(150 - shieldService.iconY.value)"></mat-slider>
         </div>
         <div class="x-coord">
-          <mat-slider
-          color="primary"
-          thumbLabel
-          tickInterval="1000"
-          step="1"
-          min="0"
-          max="150"
-          (input)="$event.value !== null && shieldService.iconX.next($event.value)"
-          aria-label="x-coordinate"
-          [value]="shieldService.iconX.value"
-          ></mat-slider>
+          <mat-slider color="primary" thumbLabel tickInterval="1" step="1" min="0" max="150"
+            (input)="$event.value !== null && shieldService.iconX.next($event.value)" aria-label="x-coordinate"
+            [value]="shieldService.iconX.value"></mat-slider>
         </div>
       </div>
 
